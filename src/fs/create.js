@@ -1,17 +1,22 @@
-import { access, constants, writeFile } from "node:fs";
-const file = "fresh.txt";
+import * as fs from "fs/promises";
+import * as url from "url";
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const filesrc = __dirname + "/files/fresh.txt";
 const create = async () => {
-  access(file, constants.F_OK, (err) => {
-    if (!err) {
-      throw new Error("FS operation failed");
-    } else {
-      writeFile(file, "I am fresh and young", (err) => {
-        if (err) {
-          console.log(err);
-        }
-      });
+  try {
+    await fs.access(filesrc, fs.constants.W_OK);
+    throw new Error("FS Operation Failed");
+  } catch (err) {
+    if (err.message === "FS Operation Failed") {
+      throw new Error(err);
     }
-  });
+
+    await fs.writeFile(filesrc, "I am young and fresh man", (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  }
 };
 
 await create();
